@@ -1,0 +1,197 @@
+{
+    "paths": {
+      "/assets": {
+        "get": {
+          "tags": ["Assets"],
+          "operationId": "list_assets",
+          "summary": "List assets",
+          "description": "Returns a paginated list of Asset objects associated with your organization.",
+          "parameters": [
+            {"$ref": "#/components/parameters/PageParam"},
+            {"$ref": "#/components/parameters/PageSizeParam"}
+          ],
+          "responses": {
+            "200": {
+              "description": "Successful response",
+              "content": {
+                "application/json": {
+                  "schema": {"$ref": "#/components/schemas/PaginatedAssetList"}
+                }
+              }
+            }
+          }
+        },
+        "post": {
+          "tags": ["Assets"],
+          "operationId": "create_asset",
+          "summary": "Create an asset",
+          "description": "Creates an Asset object. The file will be downloaded from the remote source and re-hosted in Skilljar.",
+          "requestBody": {
+            "content": {
+              "application/json": {
+                "schema": {"$ref": "#/components/schemas/AssetCreate"}
+              }
+            },
+            "required": true
+          },
+          "responses": {
+            "201": {
+              "description": "Asset created successfully",
+              "content": {
+                "application/json": {
+                  "schema": {"$ref": "#/components/schemas/Asset"}
+                }
+              }
+            }
+          }
+        }
+      },
+      "/assets/{id}": {
+        "get": {
+          "tags": ["Assets"],
+          "operationId": "get_asset",
+          "summary": "Get asset details",
+          "description": "Retrieves details for an asset associated with your organization.",
+          "parameters": [
+            {
+              "name": "id",
+              "in": "path",
+              "required": true,
+              "description": "Asset ID",
+              "schema": {
+                "type": "string"
+              }
+            }
+          ],
+          "responses": {
+            "200": {
+              "description": "Successful response",
+              "content": {
+                "application/json": {
+                  "schema": {"$ref": "#/components/schemas/Asset"}
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "components": {
+      "parameters": {
+        "PageParam": {
+          "name": "page",
+          "in": "query",
+          "description": "A page number within the paginated result set.",
+          "schema": {
+            "type": "integer",
+            "minimum": 1
+          }
+        },
+        "PageSizeParam": {
+          "name": "page_size",
+          "in": "query",
+          "description": "Number of results to return per page.",
+          "schema": {
+            "type": "integer",
+            "minimum": 1,
+            "maximum": 1000
+          }
+        }
+      },
+      "schemas": {
+        "Asset": {
+          "type": "object",
+          "properties": {
+            "id": {
+              "type": "string",
+              "description": "Unique identifier for the asset"
+            },
+            "name": {
+              "type": "string",
+              "description": "Name of the asset"
+            },
+            "type": {
+              "type": "string",
+              "description": "Type of asset"
+            },
+            "embed_link_url": {
+              "type": "string",
+              "description": "URL for embedding the asset",
+              "format": "uri"
+            },
+            "aspect_ratio": {
+              "type": "string",
+              "description": "Aspect ratio of the asset",
+              "enum": ["16:9", "4:3"]
+            },
+            "sync_completion": {
+              "type": "boolean",
+              "description": "Whether to sync completion status"
+            }
+          },
+          "required": ["id", "name"]
+        },
+        "AssetCreate": {
+          "type": "object",
+          "properties": {
+            "content_url": {
+              "type": "string",
+              "description": "URL to the content source",
+              "format": "uri"
+            },
+            "asset": {
+              "type": "object",
+              "properties": {
+                "name": {
+                  "type": "string",
+                  "description": "Name of the asset (OPTIONAL, default: built dynamically)"
+                },
+                "embed_link_url": {
+                  "type": "string",
+                  "description": "Embed link URL (OPTIONAL, but must be present if content_url is not)",
+                  "format": "uri"
+                },
+                "aspect_ratio": {
+                  "type": "string",
+                  "description": "Aspect ratio (OPTIONAL, can only be 16:9 or 4:3, default 16:9)",
+                  "enum": ["16:9", "4:3"]
+                },
+                "sync_completion": {
+                  "type": "boolean",
+                  "description": "Sync completion (OPTIONAL, default False)"
+                }
+              }
+            }
+          },
+          "required": ["asset"]
+        },
+        "PaginatedAssetList": {
+          "type": "object",
+          "properties": {
+            "count": {
+              "type": "integer",
+              "description": "Total number of assets"
+            },
+            "next": {
+              "type": "string",
+              "nullable": true,
+              "description": "URL to the next page of results",
+              "format": "uri"
+            },
+            "previous": {
+              "type": "string",
+              "nullable": true,
+              "description": "URL to the previous page of results",
+              "format": "uri"
+            },
+            "results": {
+              "type": "array",
+              "description": "List of assets",
+              "items": {"$ref": "#/components/schemas/Asset"}
+            }
+          },
+          "required": ["count", "results"]
+        }
+      }
+    }
+  }
